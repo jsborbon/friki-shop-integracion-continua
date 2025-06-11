@@ -1,0 +1,38 @@
+# 🌐 General
+.DS_Store
+.env
+.env.local
+.env.*.local
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 📦 Backend
+backend/node_modules/
+backend/.env
+backend/.DS_Store
+backend/dist/
+backend/coverage/
+backend/npm-debug.log*
+
+# 🎨 Frontend
+frontend/node_modules/
+frontend/.env
+frontend/.DS_Store
+frontend/.next/
+frontend/out/
+frontend/coverage/
+frontend/npm-debug.log*
+
+# 🚀 Docker
+docker-compose.override.yml
+
+# 🛠️ VSCode & IDEs
+.vscode/
+.idea/
+*.swp
+backend/.DS_Store
