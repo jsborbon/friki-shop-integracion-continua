@@ -1,29 +1,34 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
-import { clerkExpressWithAuth } from '@clerk/express';
-
-// Carga las variables de entorno para Clerk
-// Asegúrate de tener CLERK_SECRET_KEY o CLERK_PUBLISHABLE_KEY y CLERK_API_KEY en tu .env
-const clerkMiddleware = clerkExpressWithAuth();
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+import { requireAuth } from "@clerk/express";
 
 @Injectable()
 export class ClerkAuthMiddleware implements NestMiddleware {
-  async use(req: Request, res: Response, next: NextFunction) {
-    try {
-      // Aplica la validación de Clerk (analiza cookies o Authorization header)
-      await new Promise<void>((resolve, reject) => {
-        clerkMiddleware(req, res, (err: any) => (err ? reject(err) : resolve()));
-      });
+  use(req: Request, res: Response, next: NextFunction): void {
+    // Opción 1: Usar void para marcar explícitamente que ignoras la promesa
+    void requireAuth()(req, res, (error?: unknown) => {
+      if (error) {
+        console.error("Clerk authentication error:", error);
 
-      // Si no hay usuario autenticado, lanza error
-      if (!req.auth?.userId) {
-        return res.status(401).json({ message: 'Acceso no autorizado' });
+        if (typeof error === "object" && error !== null && "message" in error) {
+          res.status(401).json({
+            message:
+              (error as { message: string }).message ||
+              "Clerk authentication error",
+          });
+          return;
+        }
+
+        res.status(500).json({ message: "Internal server error" });
+        return;
       }
 
-      // El usuario está autenticado, continúa
+      if (!req.auth?.userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
       next();
-    } catch (err) {
-      return res.status(401).json({ message: 'Token inválido o expirado' });
-    }
+    });
   }
 }

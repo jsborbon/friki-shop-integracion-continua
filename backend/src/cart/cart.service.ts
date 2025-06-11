@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateCartItemDto } from './dto/create-cart-item.dto';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateCartItemDto } from "./dto/create-cart-item.dto";
 
 @Injectable()
 export class CartService {
@@ -24,17 +24,24 @@ export class CartService {
     });
   }
 
-  async updateItemQuantity(userId: string, productId: string, quantity: number) {
+  async updateItemQuantity(
+    userId: string,
+    productId: string,
+    // eslint-disable-next-line prettier/prettier
+    quantity: number
+  ) {
     return this.prisma.cart.update({
-      where: { userId_productId: { userId, productId } },
+      where: { userId_productId: { userId, productId: parseInt(productId) } },
       data: { quantity },
       include: { product: true },
     });
   }
 
-  async removeFromCart(userId: string, productId: number) {
+  async removeFromCart(userId: string, productId: string) {
     return this.prisma.cart.delete({
-      where: { userId_productId: { userId, productId } },
+      where: {
+        userId_productId: { userId: userId, productId: parseInt(productId) },
+      },
     });
   }
 
